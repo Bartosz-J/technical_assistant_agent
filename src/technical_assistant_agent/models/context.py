@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from src.technical_assistant_agent.models.bounding_box import BoundingBox
+from technical_assistant_agent.models.bounding_box import BoundingBox
 
 # kopia klasy z backendu
 class Context(BaseModel):
