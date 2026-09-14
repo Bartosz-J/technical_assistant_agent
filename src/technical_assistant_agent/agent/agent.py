@@ -1,5 +1,5 @@
 from technical_assistant_agent.tools.registry import ToolRegistry
-from technical_assistant_agent.llm.llm import LLM
+from technical_assistant_agent.llm.base import LLM
 
 from technical_assistant_agent.models.agent_result import AgentResult
 from technical_assistant_agent.models.agent_state import AgentState
@@ -31,6 +31,10 @@ class Agent:
     ) -> AgentResult:
 
         while not agent_state.finished:
-            pass
+            
             # sprawdzamy czy warunki spelnione
             # np. nie przekroczono dostepnej liczby iteracji
+            # powinno byc co w postaci
+            # self.policy.validate(agent_state)
+
+            pass
