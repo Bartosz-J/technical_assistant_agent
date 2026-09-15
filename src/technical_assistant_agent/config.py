@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     ollama_host: str = 'http://localhost:11434'
     ollama_model: str = 'gemma4:latest'
 
-    #mcp_server_url: str
+    mcp_server_url: str = 'http://127.0.0.1:8000/mcp/'
 
     max_agent_iterations: int = 8
     max_tool_calls: int = 20

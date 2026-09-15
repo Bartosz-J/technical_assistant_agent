@@ -65,6 +65,8 @@ class OllamaLLM(LLM):
     ) -> LLMResponse:
 
         # Stad mozna wyciagnac dodatkowe informacje np. czas generowania odpowiedzi
+        # i zapisac jak dodatkowy parametr LLMResponse, na przyklad w przyszlosci do prowadzenia statystyk
+        # liczba tokenow, czas odpowiedzi itd
         # print(response)
 
         message = ChatMessage(

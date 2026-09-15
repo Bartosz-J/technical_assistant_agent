@@ -1,4 +1,5 @@
 import asyncio
+from mcp import Client
 from technical_assistant_agent.agent.agent import Agent
 from technical_assistant_agent.llm.base import LLM
 from technical_assistant_agent.llm.ollama_llm import OllamaLLM
@@ -37,6 +38,13 @@ async def main():
     response = await llm.chat(
         chat_history = chat_history,
         tools = [])
+
+    # sprawdzamy dostepne narzedzia:
+    async with Client(settings.mcp_server_url) as client:
+        tools = await client.list_tools()
+        print("Dostepne narzedzia:")
+        for tool in tools:
+            print(tool)
 
 
 if __name__ == '__main__':
