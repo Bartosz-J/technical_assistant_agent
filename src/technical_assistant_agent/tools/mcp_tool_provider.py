@@ -1,5 +1,6 @@
 from mcp import Client
 from technical_assistant_agent.tools.tool_provider import ToolProvider
+from technical_assistant_agent.models.agent_context import AgentContext
 from technical_assistant_agent.models.tool import Tool
 from technical_assistant_agent.models.tool_call import ToolCall
 from technical_assistant_agent.models.tool_result import ToolResult
@@ -49,33 +50,31 @@ class MCPToolProvider(ToolProvider):
     async def call_tool(
         self,
         #name: str,
-        tool_call: ToolCall
+        tool_call: ToolCall,
+        agent_context: AgentContext
     ) -> ToolResult:
 
-        # async with self.client:
-        #     result = await self.client.call_tool(
-        #         name = tool_call.tool_name,
-        #         arguments = tool_call.arguments
-        #     )
+        machine_id = agent_context.machine_id
+        user_id = agent_context.user_id
 
-        #     tool_result = ToolResult(
-        #         tool_call_id = tool_call.id, 
-        #         name = tool_call.tool_name,
-        #         #content = 
-        #         structured_content = tool_call.structured_content,
-        #         is_error = result.is_error
-        #     )
+        if machine_id is None:
+            raise ValueError("AgentContext nie zawiera machine_id!")
 
-        #     return tool_result
+        if user_id is None:
+            raise ValueError("AgentContext nie zawiera user_id!")
+
         result = await self.client.call_tool(
             name = tool_call.tool_name,
-            arguments = tool_call.arguments
+            arguments = tool_call.arguments,
+            meta = {                            # dodatkowy argument ktory sluzy do przekazywania dodatkowych informacji razem z wywolaniem toola
+                "machine_id": int(machine_id)
+            }
         )
 
         tool_result = ToolResult(
             tool_call_id = tool_call.id, 
             name = tool_call.tool_name,
-            #content = 
+            # content = None,
             structured_content = result.structured_content,
             is_error = result.is_error
         )

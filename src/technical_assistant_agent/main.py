@@ -88,7 +88,7 @@ async def main():
         )
 
         agent_state = AgentState(
-            user_message = "Przeszukaj dokumentacje techniczna. skorzystaj z dostepnych narzedzi. query: jak obcinac kotwy, machine_id = 1",
+            user_message = "Przeszukaj dokumentacje techniczna. skorzystaj z dostepnych narzedzi. query: jak obcinac kotwy",
             chat_history = chat_history
         )
 

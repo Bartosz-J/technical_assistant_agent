@@ -76,6 +76,9 @@ class Agent:
             print("\nwywolane toole:")
             print(response.message.tool_calls)
 
+            # wywolanie narzedzia wyglada teraz tak:
+            #tr = await self.tools_executor.execute(response.message.tool_calls[0], agent_context)
+            #print(tr)
             break
 
             

@@ -8,5 +8,5 @@ class ToolCall(BaseModel):
     id: str #UUID
     tool_name: str
     arguments: dict[str, Any]
-    #result: ToolResult
+    result: ToolResult | None = None
     duration_ms: int | None = None # ile zajelo wywolanie narzedzia?

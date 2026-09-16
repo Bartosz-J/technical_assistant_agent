@@ -1,4 +1,5 @@
 from technical_assistant_agent.tools.tool_provider import ToolProvider
+from technical_assistant_agent.models.agent_context import AgentContext
 from technical_assistant_agent.models.tool_call import ToolCall
 from technical_assistant_agent.models.tool_result import ToolResult
 
@@ -13,9 +14,11 @@ class ToolExecutor:
 
     async def execute(
         self,
-        tool_call: ToolCall
+        tool_call: ToolCall,
+        agent_context: AgentContext
     ) -> ToolResult:
         
         return await self.tool_provider.call_tool(
-            tool_call = tool_call
+            tool_call = tool_call,
+            agent_context = agent_context
         )
