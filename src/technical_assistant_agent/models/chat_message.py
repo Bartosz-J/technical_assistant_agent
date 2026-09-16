@@ -13,8 +13,9 @@ UserRole = Literal[
 class ChatMessage(BaseModel):
     role: UserRole
     content: str | None = None          # moze byc None, bo odpowiedz moze zawierac tylko ToolCalla
-    tool_call_id: str | None = None
+    # tool_call_id: str | None = None
+    #tool_call: ToolCall | None = None
 
-    tool_calls: list[ToolCall] = Field(default_factory = list)
+    tool_calls: list[ToolCall] = Field(default_factory = list)  # lista, bo w jednej odpowiedzi z ollamy moze byc kilka tool calli!
 
-    tool_name: str | None = None
+    #tool_name: str | None = None
