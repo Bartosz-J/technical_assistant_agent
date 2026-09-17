@@ -7,6 +7,9 @@ from technical_assistant_agent.models.agent_state import AgentState
 from technical_assistant_agent.models.agent_context import AgentContext
 from technical_assistant_agent.agent.agent_policy import AgentPolicy
 from technical_assistant_agent.models.chat_message import ChatMessage
+from technical_assistant_agent.models.agent_stop_reason import AgentStopReason
+
+import asyncio
 
 class Agent:
     def __init__(
@@ -48,10 +51,16 @@ class Agent:
         agent_context: AgentContext
     ) -> AgentResponse:
 
+        #################################################
+        ################## PETLA AGENTA #################
+        #################################################
+
         while not agent_state.finished:
             
-            # sprawdzamy czy warunki spelnione
-            # np. nie przekroczono dostepnej liczby iteracji
+            ##############################################
+            ############## SRPRAWDZAMY LIMITY#############
+            ##############################################
+
             stop_reason = self.agent_policy.run_check(
                 agent_state = agent_state
             )
@@ -63,22 +72,113 @@ class Agent:
 
             agent_state.iteration += 1
 
-            print("dostepne narzedzia: ")
-            print(self.tools.list_tools())
-            print("\n\n\n")
+            ##############################################
+            ########## POBIERAMY LISTE NARZEDZI ##########
+            ##############################################
+
+            available_tools = self.tools.list_tools()
+
+            ##############################################
+            ############# WYWOLANIE MODELU ###############
+            ##############################################
 
             response = await self.llm.chat(
                 chat_history = agent_state.chat_history,
-                tools = self.tools.list_tools()
+                tools = available_tools
             )
 
-            print(response)
-            print("\nwywolane toole:")
-            print(response.message.tool_calls)
+            # print("\n==============================")
+            # print(f"ITERATION: {agent_state.iteration}")
+            # print("LLM CONTENT:")
+            # print(repr(response.message.content))
+            # print("LLM TOOL CALLS:")
+            # print(response.message.tool_calls)
+            # print("==============================\n")
 
-            # wywolanie narzedzia wyglada teraz tak:
-            #tr = await self.tools_executor.execute(response.message.tool_calls[0], agent_context)
-            #print(tr)
-            break
+            assistant_response = response.message
+
+            #############################################
+            ###### DODANIE ODPOWIEDZI DO HISTORII #######
+            #############################################
+
+            agent_state.chat_history.add(
+                assistant_response
+            )
+
+            #############################################
+            ### NIE WYWOLANO NARZEDZI = MAMY ODPOWIEDZ ##
+            #############################################
+
+            if not assistant_response.tool_calls:
+                agent_state.finished = True
+                agent_state.final_answer = (
+                    assistant_response.content or ''
+                )
+                agent_state.stop_reason = AgentStopReason.COMPLETED
+                break
+
+            #############################################
+            ### SPRAWDZAMY LICZBE WYWOLANYCH NARZEDZI ###
+            #############################################
+
+            if (agent_state.tool_calls + len(assistant_response.tool_calls) > self.agent_policy.max_tool_calls):
+                agent_state.finished = True
+                agent_state.stop_reason = AgentStopReason.MAX_TOOL_CALLS
+
+                # czy tutaj nie powinnismy wywolac LLMa jeszcze raz, ale tym razem bez tooli
+                # zeby miec pewnosc ze dostaniemy pisana odpowiedz?
+                # bo co w przypadku kiedy agent bedzie chcial raz po raz wywolywac narzedzia?
+                
+                break
+
+            ############################################
+            ############## ODPALENIE TOOLI #############
+            ############################################
+
+            #if response.message.tool_calls:
+            tool_results = await asyncio.gather(            # bo model moze chciec rownolegle wykonac kilka tooli
+                *[
+                    self.tools_executor.execute(tool_call, agent_context)
+                    for tool_call in assistant_response.tool_calls
+                ]
+            )
+
+            # print("\n========== TOOL RESULTS ==========")
+
+            # for result in tool_results:
+            #     print("name:", result.name)
+            #     print("content:", repr(result.content))
+            #     print("structured:", result.structured_content)
+            #     print("error:", result.is_error)
+
+            # print("==================================\n")
+
+            ############################################
+            ########## ZAPISANIE WYNIKOW TOOLI #########
+            ############################################
+
+            for tool_call, tool_result in zip(
+                assistant_response.tool_calls,
+                tool_results
+            ):
+                tool_call.result = tool_result
+
+            agent_state.tool_calls += len(tool_results)
+
+            ###########################################
+            ############## KONIEC PETLI ###############
+            ###########################################
+            #print("\n\nkoniec przebiegu petli. historia czatu:")
+            #print(agent_state.chat_history)
+
+            # print("\n========== HISTORY ==========")
+            # print(agent_state.chat_history.model_dump())
+            # print("=============================\n")
+
+        return AgentResponse(
+            answer = agent_state.final_answer or "",
+            iterations = agent_state.iteration,
+            stop_reason = agent_state.stop_reason
+        )
 
             

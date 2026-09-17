@@ -88,7 +88,7 @@ async def main():
         )
 
         agent_state = AgentState(
-            user_message = "Przeszukaj dokumentacje techniczna. skorzystaj z dostepnych narzedzi. query: jak obcinac kotwy",
+            user_message = "Przeszukaj dokumentacje techniczna. skorzystaj z dostepnych narzedzi. Podaj instrukcje obcinania kotew.",
             chat_history = chat_history
         )
 
@@ -98,8 +98,9 @@ async def main():
             #prompt = "Jak obcinac kotwy?",
             #context = agent_context
         )
+        print(agent_response.answer)
 
-        #print(agent_response)
+
 
         # tool_call = ToolCall(
         #     id = '1',
