@@ -17,11 +17,17 @@ class OllamaLLM(LLM):
         self,
         host: str,
         #client: AsyncClient,
-        model: str
+        model: str,
+        temperature: float,
+        max_context_length: int,
+        max_num_predict: int
     ) -> None:
         
         self.client = AsyncClient(host = host)
         self.model = model
+        self.temperature = temperature
+        self.max_context_length = max_context_length
+        self.max_num_predict = max_num_predict
 
     async def chat(
         self,
@@ -32,35 +38,64 @@ class OllamaLLM(LLM):
         messages = self._map_messages(chat_history)
         ollama_tools = self._map_tools(tools)
 
-        # print("\n\n\nwiadomosc przekazywana do Ollama: ")
-        # print(messages)
+        # print("\n========== OLLAMA INPUT ==========")
 
+        # for i, message in enumerate(messages):
+        #     print(f"\n--- MESSAGE {i} ---")
+        #     print("role:", message.get("role"))
+        #     print("content length:", len(message.get("content", "")))
+        #     print("content:")
+        #     #print(message.get("content", ""))
+
+        # print("\n==================================\n")
+
+        #print("\n\n\nwiadomosc przekazywana do Ollama: ")
+        #print(messages)
 
         response = await self.client.chat(
             model = self.model,
             messages = messages,
             tools = ollama_tools,
-            # options = {
-            #     "temperature": 0.0,
-            #     "num_predict": 2048
-            # }
-            #options = self._map_options(options)
+            #think = False,
+            options = {
+                "temperature": self.temperature,
+                "num_predict": self.max_num_predict,    
+                "num_ctx": self.max_context_length
+            }
+            #options = self._map_options(options) - ale to juz chyba bedzie przesada...
         )
 
         # dlaczego gemma tak szybko obcina odpowiedz?
 
-        print("\n========== LLM RESPONSE ==========")
-        print("content:")
-        print(repr(response.message.content))
+        # print("\n========== LLM RESPONSE ==========")
 
-        print("tool_calls:")
-        print(response.message.tool_calls)
+        # print("content:")
+        # print(repr(response.message.content))
 
-        print("done:", response.done)
-        print("done_reason:", response.done_reason)
-        print("eval_count:", getattr(response, "eval_count", None))
+        # print("thinking:")
+        # print(repr(response.message.thinking))
 
-        print("==================================\n")
+        # thinking = response.message.thinking or ""
+
+        # print("thinking length:", len(thinking))
+        # print("content length:", len(response.message.content or ""))
+
+        # print("tool_calls:")
+        # print(response.message.tool_calls)
+
+        # print("done:")
+        # print(response.done)
+
+        # print("done_reason:")
+        # print(response.done_reason)
+
+        # print("prompt_eval_count:")
+        # print(getattr(response, "prompt_eval_count", None))
+
+        # print("eval_count:")
+        # print(getattr(response, "eval_count", None))
+
+        # print("==================================\n")
 
         return self._map_response(response)
 
@@ -68,16 +103,6 @@ class OllamaLLM(LLM):
         self,
         chat_history: ChatHistory
     ) -> list[dict[str, Any]]:
-
-        # print("\n\nchat history w _map_messages: ")
-        # print(chat_history)
-        # ollama_messages_format = [
-        #     {
-        #         "role": message.role,
-        #         "content": message.content
-        #     }
-        #     for message in chat_history.messages
-        # ]
 
         ollama_messages: list[dict[str, Any]] = []
 
@@ -117,18 +142,13 @@ class OllamaLLM(LLM):
 
                     ollama_messages.append({
                         "role": "tool",
-                        "content": self._map_tool_result(tool_call.result) #(
-                            #tool_call.result.content
-                            #or str(tool_call.result.structured_content)
-                        
+                        "content": self._map_tool_result(tool_call.result)                         
                     })
                 continue
             raise ValueError(
                 f"Nieobslugiwana rola wiadomosci: {message.role}"
             )
 
-        #print("\n\n ollama messages: ")
-        #print(ollama_messages)
         return ollama_messages
 
     def _map_tools(
@@ -188,7 +208,11 @@ class OllamaLLM(LLM):
         result: ToolResult
     ) -> str:
 
+        #print("\n\n\n\n Wynik:")
+        #print(result)
+
         if result.content is not None:
+            # content jest wynikiem sformatowanym na potrzeby LLMa
             return result.content
 
         if result.structured_content is not None:
@@ -197,3 +221,5 @@ class OllamaLLM(LLM):
                 ensure_ascii=False,
                 default=str,
             )
+
+        return ""

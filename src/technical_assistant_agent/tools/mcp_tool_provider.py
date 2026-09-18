@@ -74,12 +74,64 @@ class MCPToolProvider(ToolProvider):
         tool_result = ToolResult(
             tool_call_id = tool_call.id, 
             name = tool_call.tool_name,
-            # content = None,
+            content = self._build_llm_content(
+                tool_name = tool_call.tool_name,
+                structured_content = result.structured_content
+            ),
             structured_content = result.structured_content,
             is_error = result.is_error
         )
 
+        #print(tool_result.content)
         return tool_result
+
+    def _build_llm_content(
+        self,
+        tool_name: str,
+        structured_content: Any
+    ) -> str:
+
+        if tool_name == 'search_documentation':
+            return self._format_search_documentation(
+                structured_content = structured_content
+            )
+
+        # jezeli nie chcemy jakos obrabiac outputu - zwracamy surowy wynik
+        return str(structured_content)
+
+        # ewentualnie mozemy wymagac dodania wyniku rowniez tutaj:
+        # raise ValueError(
+        #     f"Wyniki {tool_name} nie zostal odpowiednio sformatowany dla agenta!"
+        # )
+
+    def _format_search_documentation(
+        self,
+        structured_content: Any
+    ) -> str:
+
+        results = structured_content.get("result", [])
+
+        if not results:
+            return str(structured_content)
+
+        formatted_results: list[str] = []
+
+        for index, result in enumerate(results, start = 1):
+            text = result.get("text","")
+            document_title = result.get("document_title", "")
+            document_page = result.get("page", "")
+            score = result.get("score", "")
+
+            formatted_results.append(
+                f"""[Wynik {index}]
+Dokument: {document_title}
+Strona: {document_page}
+Score: {score}
+
+{text}"""
+            )
+
+        return "\n\n".join(formatted_results)
     
     async def __aenter__(self):
         await self.client.__aenter__()

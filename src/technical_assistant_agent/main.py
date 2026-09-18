@@ -20,7 +20,10 @@ async def main():
 
     llm: LLM = OllamaLLM(
         host = settings.ollama_host,
-        model = settings.ollama_model
+        model = settings.ollama_model,
+        temperature = settings.ollama_model_temperature,
+        max_context_length = settings.ollama_max_context_length,
+        max_num_predict = settings.ollama_max_num_predict
     )
     # tool_registry = ToolRegistry()
 
@@ -88,7 +91,7 @@ async def main():
         )
 
         agent_state = AgentState(
-            user_message = "Przeszukaj dokumentacje techniczna. skorzystaj z dostepnych narzedzi. Podaj instrukcje obcinania kotew.",
+            user_message = "Przeszukaj dokumentacje techniczna. skorzystaj z dostepnych narzedzi. Podaj instrukcje obcinania kotew. Nastepnie opis multiplikatora.",
             chat_history = chat_history
         )
 
@@ -98,22 +101,17 @@ async def main():
             #prompt = "Jak obcinac kotwy?",
             #context = agent_context
         )
+
+        print("\n\n ODPOWIEDZ AGENTA:")
         print(agent_response.answer)
 
+        # print("\n\n\n final_answer")
+        # print(agent_state.final_answer)
+        
 
+        # print("\n\n Historia: ")
+        # print(chat_history)
 
-        # tool_call = ToolCall(
-        #     id = '1',
-        #     tool_name = 'search_documentation',
-        #     arguments = {
-        #         'query': 'jak obcinac_kotwy',
-        #         'machine_id': 123,
-        #         'limit': 5
-        #     },
-        # )
-
-        # tool_result = await tool_executor.execute(tool_call = tool_call)
-        # print(tool_result)
 
 
 if __name__ == '__main__':
