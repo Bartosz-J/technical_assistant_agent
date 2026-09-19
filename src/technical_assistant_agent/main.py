@@ -25,34 +25,7 @@ async def main():
         max_context_length = settings.ollama_max_context_length,
         max_num_predict = settings.ollama_max_num_predict
     )
-    # tool_registry = ToolRegistry()
 
-    # agent = Agent(
-    #     llm = llm,
-    #     tools = tool_registry
-    # )
-
-    #print(tool_registry.list_tools)
-
-    # chat_message = ChatMessage(
-    #     role = "user",
-    #     content = "Przedstaw sie!"
-    # )
-
-    # chat_history = ChatHistory()
-    # chat_history.add(chat_message)
-    # print(chat_history)
-
-    # response = await llm.chat(
-    #     chat_history = chat_history,
-    #     tools = [])
-
-    # sprawdzamy dostepne narzedzia:
-    # async with Client(settings.mcp_server_url) as client:
-    #     tools = await client.list_tools()
-    #     print("Dostepne narzedzia:")
-    #     for tool in tools:
-    #         print(tool)
 
     async with MCPToolProvider(
         mcp_server_url = settings.mcp_server_url
@@ -62,7 +35,6 @@ async def main():
 
         tool_registry = ToolRegistry(tools = tools)
 
-        #print(tool_registry.list_tools())
 
         # testujemy odpalanie tooli recznie
         tool_executor = ToolExecutor(
@@ -95,7 +67,7 @@ async def main():
             chat_history = chat_history
         )
 
-        agent_response = await agent.run(
+        agent_state = await agent.run(
             agent_state = agent_state,
             agent_context = agent_context
             #prompt = "Jak obcinac kotwy?",
@@ -103,7 +75,7 @@ async def main():
         )
 
         print("\n\n ODPOWIEDZ AGENTA:")
-        print(agent_response.answer)
+        print(agent_state.final_answer)
 
         # print("\n\n\n final_answer")
         # print(agent_state.final_answer)

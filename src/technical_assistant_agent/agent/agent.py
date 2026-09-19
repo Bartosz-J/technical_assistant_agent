@@ -30,7 +30,7 @@ class Agent:
         #prompt: str,
         agent_state: AgentState,
         agent_context: AgentContext   # w przyszlosci do przekazania informacji o maszynie
-    ) -> AgentResponse:
+    ) -> AgentState: #AgentResponse:
 
         # dodajemy ostatnia wiadomosc do historii konwersacji
         agent_state.chat_history.add(
@@ -49,7 +49,7 @@ class Agent:
         self,
         agent_state: AgentState,
         agent_context: AgentContext
-    ) -> AgentResponse:
+    ) -> AgentState: #AgentResponse:
 
         #################################################
         ################## PETLA AGENTA #################
@@ -175,10 +175,12 @@ class Agent:
             # print(agent_state.chat_history.model_dump())
             # print("=============================\n")
 
-        return AgentResponse(
-            answer = agent_state.final_answer or "",
-            iterations = agent_state.iteration,
-            stop_reason = agent_state.stop_reason
-        )
+        # return AgentResponse(
+        #     answer = agent_state.final_answer or "",
+        #     iterations = agent_state.iteration,
+        #     stop_reason = agent_state.stop_reason
+        # )
+
+        return agent_state
 
             
