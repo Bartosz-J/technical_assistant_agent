@@ -14,6 +14,7 @@ from technical_assistant_agent.tools.tool_executor import ToolExecutor
 from technical_assistant_agent.models.tool_call import ToolCall
 from technical_assistant_agent.models.agent_stop_reason import AgentStopReason
 from technical_assistant_agent.models.agent_state import AgentState
+from technical_assistant_agent.prompts.system import SYSTEM_PROMPT
 #from technical_assistant_agent.tools.registry import ToolRegistry
 
 async def main():
@@ -58,12 +59,21 @@ async def main():
             machine_id = '1'
         )
 
+        # system_prompt = ChatMessage(
+        #     role = 'system',
+        #     content = SYSTEM_PROMPT
+        # )
+
+        # chat_history = ChatHistory(
+        #     messages = [system_prompt]
+        # )
+
         chat_history = ChatHistory(
             messages = []
         )
 
         agent_state = AgentState(
-            user_message = "Przeszukaj dokumentacje techniczna. skorzystaj z dostepnych narzedzi. Podaj instrukcje obcinania kotew. Nastepnie opis multiplikatora.",
+            user_message = "Podaj instrukcje obcinania kotew. Nastepnie opis multiplikatora.",
             chat_history = chat_history
         )
 
@@ -81,8 +91,8 @@ async def main():
         # print(agent_state.final_answer)
         
 
-        # print("\n\n Historia: ")
-        # print(chat_history)
+        print("\n\n Historia: ")
+        print(chat_history)
 
 
 

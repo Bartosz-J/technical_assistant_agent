@@ -5,6 +5,8 @@ from technical_assistant_agent.models.llm_response import LLMResponse
 from technical_assistant_agent.models.tool import Tool
 from technical_assistant_agent.models.tool_call import ToolCall
 from technical_assistant_agent.models.tool_result import ToolResult
+
+from technical_assistant_agent.prompts.system import SYSTEM_PROMPT
 from ollama import AsyncClient
 from uuid import uuid4
 
@@ -34,6 +36,7 @@ class OllamaLLM(LLM):
         chat_history: ChatHistory,
         tools: list[Tool] # tutaj a nie w konstruktorze, bo tools nie sa czescia LLM!
     ) -> LLMResponse:
+
         
         messages = self._map_messages(chat_history)
         ollama_tools = self._map_tools(tools)
@@ -49,8 +52,8 @@ class OllamaLLM(LLM):
 
         # print("\n==================================\n")
 
-        #print("\n\n\nwiadomosc przekazywana do Ollama: ")
-        #print(messages)
+        # print("\n\n\nwiadomosc przekazywana do Ollama: ")
+        # print(messages)
 
         response = await self.client.chat(
             model = self.model,

@@ -82,7 +82,6 @@ class MCPToolProvider(ToolProvider):
             is_error = result.is_error
         )
 
-        #print(tool_result.content)
         return tool_result
 
     def _build_llm_content(
@@ -92,9 +91,11 @@ class MCPToolProvider(ToolProvider):
     ) -> str:
 
         if tool_name == 'search_documentation':
-            return self._format_search_documentation(
+
+            search_doc_context = self._format_search_documentation(
                 structured_content = structured_content
             )
+            return search_doc_context
 
         # jezeli nie chcemy jakos obrabiac outputu - zwracamy surowy wynik
         return str(structured_content)
@@ -109,7 +110,7 @@ class MCPToolProvider(ToolProvider):
         structured_content: Any
     ) -> str:
 
-        results = structured_content.get("result", [])
+        results = structured_content.get("results", [])
 
         if not results:
             return str(structured_content)
