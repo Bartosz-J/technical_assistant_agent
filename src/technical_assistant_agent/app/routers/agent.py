@@ -8,6 +8,7 @@ from technical_assistant_agent.prompts.system import SYSTEM_PROMPT
 from technical_assistant_agent.models.agent_state import AgentState
 from technical_assistant_agent.models.chat_message import ChatMessage
 from technical_assistant_agent.models.chat_history import ChatHistory
+from technical_assistant_agent.models.agent_response import AgentResponse
 
 router = APIRouter(
     prefix = '/agent',
@@ -15,22 +16,15 @@ router = APIRouter(
 )
 
 @router.post('/chat',
-             response_model = AgentState)
+             response_model = AgentResponse)#AgentState)
 async def chat(
     chat_call: ChatCall,
     agent: Agent = Depends(get_agent)
-) -> AgentState:
+) -> AgentResponse: #AgentState:
 
-    # do skonsultowania jeszcze z ChatemGPT - nie jestem pewny czy to najlepsze miejsce na dodawanie system prompta ;)
-    system_prompt = ChatMessage(
-        role = 'system',
-        content = SYSTEM_PROMPT
+    chat_history = buiild_agent_chat_history(
+        chat_call = chat_call
     )
-
-    chat_history = ChatHistory(
-        messages = [system_prompt]
-    )
-    chat_history.messages = chat_history.messages + chat_call.chat_history.messages
 
     agent_state = AgentState(
         user_message=chat_call.message,
@@ -47,3 +41,20 @@ async def chat(
         agent_state=agent_state,
         agent_context=agent_context,
     )
+
+def buiild_agent_chat_history(
+    chat_call: ChatCall
+) -> ChatHistory:
+    
+    system_prompt = ChatMessage(
+        role = 'system',
+        content = SYSTEM_PROMPT
+    )
+
+    chat_history = ChatHistory(
+        messages = [system_prompt]
+    )
+    chat_history.messages = chat_history.messages + chat_call.chat_history.messages
+
+    return chat_history
+    

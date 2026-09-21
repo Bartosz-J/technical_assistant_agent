@@ -14,3 +14,18 @@ class ChatHistory(BaseModel):
         self
     ) -> None:
         self.messages.clear()
+
+    # uzytkownikowi chcemy zwracac tylko historie konwersacji, bez system_promptu!
+    # moze rowniez bez konkretnych tool_calli? Do przemyslenia...
+    def public(
+        self
+    ):
+        public_messages = [
+            message 
+            for message in self.messages
+            if message.role != "system"
+        ]
+
+        return ChatHistory(
+            messages = public_messages
+        )

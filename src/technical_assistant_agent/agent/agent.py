@@ -2,12 +2,13 @@ from technical_assistant_agent.llm.base import LLM
 from technical_assistant_agent.tools.registry import ToolRegistry
 from technical_assistant_agent.tools.tool_executor import ToolExecutor
 
-from technical_assistant_agent.models.agent_response import AgentResponse
+#from technical_assistant_agent.models.agent_response import AgentResponse
 from technical_assistant_agent.models.agent_state import AgentState
 from technical_assistant_agent.models.agent_context import AgentContext
 from technical_assistant_agent.agent.agent_policy import AgentPolicy
 from technical_assistant_agent.models.chat_message import ChatMessage
 from technical_assistant_agent.models.agent_stop_reason import AgentStopReason
+from technical_assistant_agent.models.agent_response import AgentResponse
 
 import asyncio
 
@@ -49,7 +50,7 @@ class Agent:
         self,
         agent_state: AgentState,
         agent_context: AgentContext
-    ) -> AgentState: #AgentResponse:
+    ) -> AgentResponse: #AgentState: 
 
         #################################################
         ################## PETLA AGENTA #################
@@ -181,6 +182,23 @@ class Agent:
         #     stop_reason = agent_state.stop_reason
         # )
 
-        return agent_state
+        agent_response = self._format_response(
+            agent_state = agent_state
+        )
+        return agent_response
 
-            
+    def _format_response(
+        self,
+        agent_state: AgentState
+    ) -> AgentResponse:
+
+        agent_response = AgentResponse(
+            chat_history = agent_state.chat_history.public(),
+            iteration = agent_state.iteration,
+            tool_calls = agent_state.tool_calls,
+            finished = agent_state.finished,
+            final_answer = agent_state.final_answer,
+            stop_reason = agent_state.stop_reason,
+        )
+
+        return agent_response
