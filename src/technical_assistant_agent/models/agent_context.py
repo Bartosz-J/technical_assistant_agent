@@ -7,6 +7,6 @@ from uuid import UUID
 # nie przechowujemy historii konwersacji! jest ona zwracana za kazdym razem ze streamlit
 class AgentContext(BaseModel):
     user_id: str | None = None
-    machine_id: str | None = None
+    machine_id: UUID | None = None
     # chat_history: ChatHistory
     # conversation_id: UUID | None = None

@@ -5,6 +5,7 @@ from technical_assistant_agent.models.tool import Tool
 from technical_assistant_agent.models.tool_call import ToolCall
 from technical_assistant_agent.models.tool_result import ToolResult
 
+from uuid import UUID
 from typing import Any
 
 class MCPToolProvider(ToolProvider):
@@ -63,13 +64,21 @@ class MCPToolProvider(ToolProvider):
         if user_id is None:
             raise ValueError("AgentContext nie zawiera user_id!")
 
+        # print("Kontekst agenta w call_tool")
+        # print(agent_context)
+        # print("tool_call:")
+        # print(tool_call)
+
         result = await self.client.call_tool(
             name = tool_call.tool_name,
             arguments = tool_call.arguments,
             meta = {                            # dodatkowy argument ktory sluzy do przekazywania dodatkowych informacji razem z wywolaniem toola
-                "machine_id": int(machine_id)
+                "machine_id": machine_id
             }
         )
+
+        #print("Wynik narzedzia")
+        #print
 
         tool_result = ToolResult(
             tool_call_id = tool_call.id, 
@@ -92,6 +101,8 @@ class MCPToolProvider(ToolProvider):
 
         if tool_name == 'search_documentation':
 
+            # print("przekazywany structured_content")
+            # print(structured_content)
             search_doc_context = self._format_search_documentation(
                 structured_content = structured_content
             )

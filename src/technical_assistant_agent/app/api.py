@@ -38,6 +38,8 @@ async def lifespan(
         tools = await mcp_provider.list_tools()
         tool_registry = ToolRegistry(tools = tools)
 
+        print("dostepne narzedzia:")
+        print(tools)
 
         # testujemy odpalanie tooli recznie
         tool_executor = ToolExecutor(
