@@ -144,15 +144,18 @@ class Agent:
                 ]
             )
 
-            print("\n========== TOOL RESULTS ==========")
+            # print("\n============ ODPOWIEDZ AGENTA ===========")
+            # print(assistant_response)
 
-            for result in tool_results:
-                print("name:", result.name)
-                print("content:", repr(result.content))
-                print("structured:", result.structured_content)
-                print("error:", result.is_error)
+            # print("\n========== TOOL RESULTS ==========")
 
-            print("==================================\n")
+            # for result in tool_results:
+            #     print("name:", result.name)
+            #     print("content:", repr(result.content))
+            #     print("structured:", result.structured_content)
+            #     print("error:", result.is_error)
+
+            # print("==================================\n")
 
             ############################################
             ########## ZAPISANIE WYNIKOW TOOLI #########
