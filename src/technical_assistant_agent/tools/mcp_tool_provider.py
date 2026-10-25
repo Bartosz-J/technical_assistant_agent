@@ -24,18 +24,6 @@ class MCPToolProvider(ToolProvider):
     ) -> list[Tool]:
         
         # sprawdzamy dostepne narzedzia:
-        # async with self.client:
-        #     result = await self.client.list_tools()
-            
-        #     tools = [
-        #         Tool(
-        #             name = tool.name,
-        #             description = tool.description or "",
-        #             input_schema = tool.input_schema
-        #         ) for tool in result.tools
-        #     ]
-
-        #     return tools
         result = await self.client.list_tools()
             
         tools = [
@@ -46,6 +34,8 @@ class MCPToolProvider(ToolProvider):
             ) for tool in result.tools
         ]
 
+        # print("dostepne narzedzia:")
+        # print(tools)
         return tools
 
     async def call_tool(
@@ -102,19 +92,37 @@ class MCPToolProvider(ToolProvider):
         if tool_name == 'search_documentation':
 
             # print("przekazywany structured_content")
-            # print(structured_content)
+            print("Wywolano search_documentation!")
+            #print(structured_content)
             search_doc_context = self._format_search_documentation(
                 structured_content = structured_content
             )
             return search_doc_context
+        
+        if tool_name == 'full_text_search_documentation':
+            print("Wywolano full_text_search_documentation")
+            print(structured_content)
+        
+        if tool_name =='search_filtered_documentation':
+            print("Wywolano search_filtered_documentation")
+            print(structured_content)
+        
+        if tool_name == 'list_documents':
+            print("Wywolano list_documents!")
+            #print(structured_content)
+
+            list_doc_context = self._format_list_documents(
+                structured_content = structured_content
+            )
+            print(list_doc_context)
+            return list_doc_context
+        
+        if tool_name == 'search_pictures':
+            print("Wywolano search_pictures!")
+            print(structured_content)
 
         # jezeli nie chcemy jakos obrabiac outputu - zwracamy surowy wynik
         return str(structured_content)
-
-        # ewentualnie mozemy wymagac dodania wyniku rowniez tutaj:
-        # raise ValueError(
-        #     f"Wyniki {tool_name} nie zostal odpowiednio sformatowany dla agenta!"
-        # )
 
     def _format_search_documentation(
         self,
@@ -136,14 +144,44 @@ class MCPToolProvider(ToolProvider):
 
             formatted_results.append(
                 f"""[Wynik {index}]
-Dokument: {document_title}
-Strona: {document_page}
-Score: {score}
+                    Dokument: {document_title}
+                    Strona: {document_page}
+                    Score: {score}
 
-{text}"""
+                    {text}""".strip()
             )
 
         return "\n\n".join(formatted_results)
+
+    def _format_list_documents(
+        self,
+        structured_content: Any
+    ) -> str:
+
+        results = structured_content.get("results", [])
+
+        if not results:
+            return str(structured_content)
+
+        formatted_results: list[str] = []
+
+        for index, result in enumerate(results, start = 1):
+
+            document_id = result.get("id","")
+            document_original_title = result.get("title", "")
+            document_generated_title = result.get("generated_title", "")
+
+
+            formatted_results.append(
+                f"""[Wynik {index}]
+                    Dokument ID: {document_id}
+                    Tytuł: {document_original_title}
+                    Tytuł opisowy: {document_generated_title}
+                    """.strip()
+            )
+
+        return "\n\n".join(formatted_results)
+
     
     async def __aenter__(self):
         await self.client.__aenter__()

@@ -55,6 +55,10 @@ class OllamaLLM(LLM):
         # print("\n\n\nwiadomosc przekazywana do Ollama: ")
         # print(messages)
 
+        # print("do ollama wchodzi")
+        # print(messages)
+        # print("lista tooli")
+        # print(tools)
         response = await self.client.chat(
             model = self.model,
             messages = messages,
@@ -67,6 +71,8 @@ class OllamaLLM(LLM):
             }
             #options = self._map_options(options) - ale to juz chyba bedzie przesada...
         )
+        # print("odpowiedz:")
+        # print(response)
 
         # dlaczego gemma tak szybko obcina odpowiedz?
 

@@ -17,6 +17,9 @@ class ToolExecutor:
         tool_call: ToolCall,
         agent_context: AgentContext
     ) -> ToolResult:
+
+        print("wywolujemy narzerzie:")
+        print(tool_call)
         
         return await self.tool_provider.call_tool(
             tool_call = tool_call,
