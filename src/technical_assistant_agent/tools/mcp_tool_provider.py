@@ -88,41 +88,112 @@ class MCPToolProvider(ToolProvider):
         tool_name: str,
         structured_content: Any
     ) -> str:
+        '''
+        Formatuje output narzedzia zwracany przez MCP zeby byl zjadliwy dla modelu.
+        Usuwa m.in. informacje istotne z punktu widzenia wyswietlania obrazkow czy czhunkow contextu.
+        '''
 
         if tool_name == 'search_documentation':
 
             # print("przekazywany structured_content")
-            print("Wywolano search_documentation!")
-            #print(structured_content)
             search_doc_context = self._format_search_documentation(
                 structured_content = structured_content
             )
             return search_doc_context
         
         if tool_name == 'full_text_search_documentation':
-            print("Wywolano full_text_search_documentation")
-            print(structured_content)
+
+            full_text_search_context = self._format_full_text_search_documentation(
+                structured_content = structured_content
+            )
+
+            return full_text_search_context
         
         if tool_name =='search_filtered_documentation':
             print("Wywolano search_filtered_documentation")
             print(structured_content)
         
         if tool_name == 'list_documents':
-            print("Wywolano list_documents!")
-            #print(structured_content)
 
             list_doc_context = self._format_list_documents(
                 structured_content = structured_content
             )
-            print(list_doc_context)
+
             return list_doc_context
         
         if tool_name == 'search_pictures':
-            print("Wywolano search_pictures!")
-            print(structured_content)
+
+            search_pict_content = self._format_search_pictures(
+                structured_content = structured_content
+            )
+
+            return search_pict_content
 
         # jezeli nie chcemy jakos obrabiac outputu - zwracamy surowy wynik
         return str(structured_content)
+
+    def _format_search_pictures(
+        self,
+        structured_content: Any
+    ) -> str:
+
+        #print("Wywolano search_pictures!")
+        #print(structured_content)
+
+        results = structured_content.get("results", [])
+
+        if not results:
+            return str(structured_content)
+
+        formatted_results: list[str] = []
+
+        for index, result in enumerate(results, start = 1):
+
+            # wyciagamy informacje o obrazku
+            picture = result.get("picture", {})
+
+            document_id = result.get("document_id", "")
+            document_title = result.get("document_title", "")
+            
+            document_page = picture.get("page", "")
+            picture_description = picture.get("description", "")
+            picture_caption = picture.get("caption", "")
+            #score = result.get("score", "")
+
+            formatted_results.append(
+                f"""[Wynik {index}]
+                    Dokument: {document_title}
+                    Dokument ID: {document_id}
+                    Strona obrazka: {document_page}
+                    Podpis obrazka: {picture_caption}
+
+                    {picture_description}""".strip()
+            )
+
+        return "\n\n".join(formatted_results)
+
+    # wrapper
+    def _format_full_text_search_documentation(
+        self,
+        structured_content: Any
+    ) -> str:
+
+        result = self._format_search_documentation(
+            structured_content = structured_content
+        )
+
+        return result
+
+    def _format_search_filtered_documentation(
+        self,
+        structured_content: Any
+    ) -> str:
+        
+        result = self._format_search_documentation(
+            structured_content = structured_content
+        )
+
+        return result
 
     def _format_search_documentation(
         self,
